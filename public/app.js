@@ -46,7 +46,7 @@ function addUserDocument() {
 // Add a new document in collection "cities"
 	var ID = document.getElementById('UserID').value
 	var Name = document.getElementById('UserName').value
-	var Email = document.getElementById('USerEmail').value
+	var Email = document.getElementById('UserEmail').value
 	const database = firebase.firestore();
 	database.collection("Users").doc(String(ID)).set({
 	    name: String(Name),
