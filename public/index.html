@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/5.0.3/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/5.0.3/firebase-auth.js"></script>
+    <script defer src="/__/firebase/5.0.3/firebase-database.js"></script>
+    <script defer src="/__/firebase/5.0.3/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/5.0.3/firebase-storage.js"></script>
+    <script defer src="/__/firebase/5.0.3/firebase-firestore.js"></script>
+
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+    
+  </head>
+  <body>
+
+    <button onclick="googleLogin()">
+      Login with Google  
+
+    </button>
+
+    <h1 id="Name"></h1>
+
+    <input onchange="updatePost(event)">
+
+    <div class = "UserForm">
+      <h3>Firebase Firestore add user document</h3>
+      <input type="text" placeholder="Enter User here..." id = "UserID">
+      <input type="text" placeholder="Enter Name here..." id = "UserName">
+      <input type="text" placeholder="Enter Email here..." id = "UserEmail">
+      <button id=proceed onclick= addUserDocument()> Proceed </button>
+    </div>
+
+    <div class = "EventForm">
+      <h3>Firebase Firestore new Event document</h3>
+      <input type="text" placeholder="Enter Event ID here..." id = "EventID">
+      <input type="text" placeholder="Enter Event Name here..." id = "EventName">
+      <input type="text" placeholder="Enter Event Location here..." id = "EventLocation">
+      <button id=proceed onclick= addEventDocument()> Proceed </button>
+    </div>
+
+
+
+    <script src="app.js"></script>
+  </body>
+</html>
