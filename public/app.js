@@ -36,7 +36,7 @@ function googleLogin() {
 
 			.then(result =>{
 				const user = result.user;
-				document.write ("Hello " + user.displayName);
+				//document.write ("Hello ");
 				// Add a new document in collection "users"
 				var ID = (user.displayName + "-" +user.email  )
 				var Name = user.displayName;
@@ -47,12 +47,29 @@ function googleLogin() {
 				    email: String(Email),
 				})
 				.then(function() {
-				    console.log("Document successfully written!");
+				    console.log("User Document successfully written!");
+				})
+				.catch(function(error) {
+				    console.error("Error writing document: ", error);
+				});
+				database.collection("Friends").doc(String(ID)).set({
+				    FriendsOfUser: String(Name),
+				    //email: String(Email),
+				})
+				.then(function() {
+				    console.log("Friends Document successfully written!");
 				})
 				.catch(function(error) {
 				    console.error("Error writing document: ", error);
 				});
 				console.log(user);
+				var ThisUser = database.collection('Users').doc(String(ID));
+				ThisUser.onSnapshot(doc =>{
+
+				const data = doc.data();
+				document.querySelector( "#Google").innerHTML = ("Hello " + data.name + " " + data.email);
+				
+			})
 			})
 			//.catch(console.log)
 }
