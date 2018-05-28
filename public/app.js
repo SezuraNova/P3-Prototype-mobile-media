@@ -1,3 +1,6 @@
+var GoogleID = "blank";
+
+
 document.addEventListener("DOMContentLoaded" , event => {
 
 	const app = firebase.app();
@@ -38,36 +41,44 @@ function googleLogin() {
 				const user = result.user;
 				//document.write ("Hello ");
 				// Add a new document in collection "users"
-				var ID = (user.displayName + "-" +user.email  )
+				GoogleID = (user.displayName + "-" +user.email  )
 				var Name = user.displayName;
 				var Email = user.email;
+				hide("EventForm");
+				hide("UserForm");
+				hide("Name");
+				hide("FriendForm");
+				hide("update");
+				
 				const database = firebase.firestore();
-				database.collection("Users").doc(String(ID)).set({
+				database.collection("Users").doc(String(GoogleID)).set({
 				    name: String(Name),
 				    email: String(Email),
 				})
 				.then(function() {
+
 				    console.log("User Document successfully written!");
 				})
 				.catch(function(error) {
-				    console.error("Error writing document: ", error);
+				    console.error("Error writing User document: ", error);
 				});
-				database.collection("Friends").doc(String(ID)).set({
-				    FriendsOfUser: String(Name),
-				    //email: String(Email),
-				})
-				.then(function() {
-				    console.log("Friends Document successfully written!");
-				})
-				.catch(function(error) {
-				    console.error("Error writing document: ", error);
-				});
+				// database.collection("Friends").doc(String(GoogleID)).set({
+				//     //FriendsOfUser: String(Name),
+				//     //email: String(Email),
+				// })
+				// .then(function() {
+				//     console.log("Friends Document successfully written!");
+				// })
+				// .catch(function(error) {
+				//     console.error("Error writing Friends document: ", error);
+				// });
 				console.log(user);
-				var ThisUser = database.collection('Users').doc(String(ID));
+				var ThisUser = database.collection('Users').doc(String(GoogleID));
 				ThisUser.onSnapshot(doc =>{
-
+				//document.getElementById("EventForm").style.display = "none";	
 				const data = doc.data();
 				document.querySelector( "#Google").innerHTML = ("Hello " + data.name + " " + data.email);
+
 				
 			})
 			})
@@ -75,7 +86,7 @@ function googleLogin() {
 }
 
 function addUserDocument() {
-// Add a new document in collection "users"
+	// Add a new document in collection "Users"
 	var ID = document.getElementById('UserID').value
 	var Name = document.getElementById('UserName').value
 	var Email = document.getElementById('UserEmail').value
@@ -88,12 +99,12 @@ function addUserDocument() {
 	    console.log("Document successfully written!");
 	})
 	.catch(function(error) {
-	    console.error("Error writing document: ", error);
+	    console.error("Error writing Users document: ", error);
 });
 }
 
 function addEventDocument() {
-// Add a new document in collection "events"
+	// Add a new document in collection "Events"
 	var ID = document.getElementById('EventID').value
 	var Name = document.getElementById('EventName').value
 	var Location = document.getElementById('EventLocation').value
@@ -106,6 +117,39 @@ function addEventDocument() {
 	    console.log("Document successfully written!");
 	})
 	.catch(function(error) {
-	    console.error("Error writing document: ", error);
+	    console.error("Error writing Events document: ", error);
 });
+}
+
+function addFriendDocument() {
+	// Add a new document in collection "Friends"
+	var Name = document.getElementById('FriendName').value
+	var Email = document.getElementById('FriendEmail').value
+	Name = String(Name);
+	Email = String(Email);
+	var NameEmail = "Friendslist." + Name + "-" + Email;
+	Friendslist = {
+
+	}
+	const database = firebase.firestore();
+	database.collection("Friends").doc(String(GoogleID)).update({	     
+	    	[NameEmail] : true,
+	})
+	.then(function() {
+	    console.log("Document successfully written!");
+	})
+	.catch(function(error) {
+	    console.error("Error writing Friends document: ", error);
+});
+}
+
+function hide(myDIV) {
+	myDIV = String(myDIV);
+	//console.log(myDIV);
+    var x = document.getElementById(myDIV);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
 }
