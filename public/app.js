@@ -1,5 +1,8 @@
 var GoogleID = "blank";
-
+var geocoder;
+var map;
+var latitude;
+var longitude;
 
 document.addEventListener("DOMContentLoaded" , event => {
 
@@ -49,6 +52,10 @@ function googleLogin() {
 				hide("Name");
 				hide("FriendForm");
 				hide("update");
+				hide("Google");
+				hide("Controls");
+				hide("addEventLocation");
+				myMap();
 				
 				const database = firebase.firestore();
 				database.collection("Users").doc(String(GoogleID)).set({
@@ -77,7 +84,7 @@ function googleLogin() {
 				ThisUser.onSnapshot(doc =>{
 				//document.getElementById("EventForm").style.display = "none";	
 				const data = doc.data();
-				document.querySelector( "#Google").innerHTML = ("Hello " + data.name + " " + data.email);
+				document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
 
 				
 			})
@@ -152,4 +159,78 @@ function hide(myDIV) {
     } else {
         x.style.display = "none";
     }
+}
+
+function myMap() {
+	geocoder = new google.maps.Geocoder();
+    var Location = new google.maps.LatLng(-41.2, 174.7)
+    var mapOptions = {
+        center: Location,
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.HYBRID
+    }
+	map = new google.maps.Map(document.getElementById("map"), mapOptions);
+}
+
+function codeAddress() {
+var address = document.getElementById("address").value;
+geocoder.geocode( { 'address': address}, function(results, status) {
+if (status == google.maps.GeocoderStatus.OK) {
+map.setCenter(results[0].geometry.location);
+
+var marker = new google.maps.Marker({
+    map: map,
+    draggable: true,
+    position: results[0].geometry.location
+
+});
+   google.maps.event.addListener(marker, 'dragend', function(evt){
+   document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' 
+   + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+   
+   latitude = evt.latLng.lat().toFixed(6);
+   longitude = evt.latLng.lng().toFixed(6);
+   console.log(latitude + " " + longitude)
+
+   });
+
+   google.maps.event.addListener(marker, 'dragstart', function(evt){
+   document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
+   });
+
+   google.maps.event.addListener(marker, 'dragend', function(evt){
+   document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
+   });
+
+   google.maps.event.addListener(marker, 'dragstart', function(evt){
+   document.getElementById('info').innerHTML = '<p>Currently dragging marker...</p>';
+   });
+
+
+
+ map.setCenter(marker.position);
+ marker.setMap(map);
+
+  } else {
+    alert("Geocode was not successful for the following reason: " + status);
+    }
+     });
+}
+
+function addEventMapDocument() {
+	// Add a new document in collection "Events"
+	var Name = document.getElementById('EventNameMap').value
+	var loc = new firebase.firestore.GeoPoint(Number(latitude),Number(longitude));
+	console.log(loc);
+	const database = firebase.firestore();
+	database.collection("Events").add({
+	    name: String(Name),
+	    Location: loc,
+	})
+	.then(function() {
+	    console.log("Document successfully written!");
+	})
+	.catch(function(error) {
+	    console.error("Error writing Events document: ", error);
+});
 }

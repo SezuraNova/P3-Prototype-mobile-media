@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome to Firebase Hosting</title>
 
+    
     <!-- update the version number as needed -->
     <script defer src="/__/firebase/5.0.3/firebase-app.js"></script>
     <!-- include only the Firebase features as you need -->
@@ -17,7 +18,7 @@
     <!-- initialize the SDK after all desired features are loaded -->
     <script defer src="/__/firebase/init.js"></script>
     <script src="app.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAvqPIexINse3p7E2H5eBMh_nldsVU18JM"></script>
     
   </head>
   <body>
@@ -62,18 +63,33 @@
       <input type="text" placeholder="Enter Event ID here..." id = "EventID">
       <input type="text" placeholder="Enter Event Name here..." id = "EventName">
       <input type="text" placeholder="Enter Event Location here..." id = "EventLocation">
-      <button id="proceed" onclick= "addEventDocument()""> Submit </button>
+      <button id="proceed" onclick= "addEventDocument()"> Submit </button>
     </div>
 
     <div class = "FriendForm" id = "FriendForm" style="display: none">
       <h3>New Friend document</h3>
       <input type="text" placeholder="Enter your Friend's Name here..." id = "FriendName">
       <input type="text" placeholder="Enter Friend's email here..." id = "FriendEmail">
-      <button id="proceed" onclick= "addFriendDocument()""> Submit </button>
+      <button id="proceed" onclick= "addFriendDocument()"> Submit </button>
     </div>
 
+    <div id="Controls" style="display: none">
+      <input id="address" type="textbox" value="Wellington">
+
+      <input type="button" value="Geocode" onClick="codeAddress()">
+      <div id="current" style="background-color:white;">Nothing yet...</div>
+      <div id="info" style="background-color:white;">Address:</div>
+    </div>
+
+    <div id="addEventLocation" style="display: none">
+    <input type="text" placeholder="Enter Event Name here..." id = "EventNameMap">
+    <button id="proceed" onclick= "addEventMapDocument()"> Submit </button>
+    </div>
+
+    <div id="map" style="width:400px;height:400px">
 
 
-    
+
+
   </body>
 </html>
