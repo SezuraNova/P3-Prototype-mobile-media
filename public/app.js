@@ -170,6 +170,29 @@ function myMap() {
         mapTypeId: google.maps.MapTypeId.HYBRID
     }
 	map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+	const database = firebase.firestore();
+	console.log("Started");
+	database.collection("Events")//.where("Location", "==", true)
+    .get()
+    .then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            console.log(doc.id, " => ", doc.data());
+            var myLatLng = {lat: doc.data().Location._lat, lng: doc.data().Location._long};
+            var marker = new google.maps.Marker({
+			    map: map,
+			    draggable: false,
+			    position: myLatLng,
+			    label: doc.data().name,
+			    title: doc.data().name
+
+			});
+        });
+    })
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
 }
 
 function codeAddress() {
@@ -188,9 +211,23 @@ var marker = new google.maps.Marker({
    document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' 
    + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
    
-   latitude = evt.latLng.lat().toFixed(6);
-   longitude = evt.latLng.lng().toFixed(6);
-   console.log(latitude + " " + longitude)
+   	latitude = evt.latLng.lat().toFixed(6);
+   	longitude = evt.latLng.lng().toFixed(6);
+   	console.log(latitude + " " + longitude)
+   	var input = latitude + ", " + longitude;
+	var latlngStr = input.split(',', 2);
+    var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+    geocoder.geocode({'location': latlng}, function(results, status) {
+          	if (status === 'OK') {
+	          	if (results[0]) {
+	    			document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
+	    		} else {
+	              window.alert('No results found');
+	            }
+			} else {
+            window.alert('Geocoder failed due to: ' + status);
+          }
+    });      
 
    });
 
@@ -198,9 +235,9 @@ var marker = new google.maps.Marker({
    document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
    });
 
-   google.maps.event.addListener(marker, 'dragend', function(evt){
+   // google.maps.event.addListener(marker, 'dragend', function(evt){
    document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
-   });
+   // });
 
    google.maps.event.addListener(marker, 'dragstart', function(evt){
    document.getElementById('info').innerHTML = '<p>Currently dragging marker...</p>';
