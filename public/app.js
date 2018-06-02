@@ -1,8 +1,9 @@
-var GoogleID = "blank";
+var UserID = "blank";
 var geocoder;
 var map;
 var latitude;
 var longitude;
+var EventsArray = [];
 
 document.addEventListener("DOMContentLoaded" , event => {
 
@@ -40,74 +41,109 @@ function googleLogin() {
 
 	firebase.auth().signInWithPopup(provider)
 
-			.then(result =>{
-				const user = result.user;
-				//document.write ("Hello ");
-				// Add a new document in collection "users"
-				GoogleID = (user.displayName + "-" +user.email  )
-				var Name = user.displayName;
-				var Email = user.email;
-				hide("EventForm");
-				hide("UserForm");
-				hide("Name");
-				hide("FriendForm");
-				hide("update");
-				hide("Google");
-				hide("Controls");
-				hide("addEventLocation");
-				myMap();
-				
-				const database = firebase.firestore();
-				database.collection("Users").doc(String(GoogleID)).set({
-				    name: String(Name),
-				    email: String(Email),
-				})
-				.then(function() {
+		.then(result =>{
+			const user = result.user;
+			//document.write ("Hello ");
+			// Add a new document in collection "users"
+			UserID = (user.displayName + "-" +user.email  )
+			var Name = user.displayName;
+			var Email = user.email;
+			HideStuffOnLogin();
+			const database = firebase.firestore();
+			database.collection("Users").doc(String(UserID)).get().then(function(doc) {
+				if (doc.exists) {
+			        console.log("Document data:", doc.data());
+			    } else {
+			        // doc.data() will be undefined in this case
+			        console.log("No such document!");
+			        database.collection("Users").doc(String(UserID)).set({
+					    name: String(Name),
+					    email: String(Email),
+					})
+					.then(function() {
 
-				    console.log("User Document successfully written!");
-				})
-				.catch(function(error) {
-				    console.error("Error writing User document: ", error);
+					    console.log("User Document successfully written!");
+					})
+					.catch(function(error) {
+					    console.error("Error writing User document: ", error);
+					});
+			    }
+			    }).catch(function(error) {
+				    console.log("Error getting document:", error);
 				});
-				// database.collection("Friends").doc(String(GoogleID)).set({
-				//     //FriendsOfUser: String(Name),
-				//     //email: String(Email),
-				// })
-				// .then(function() {
-				//     console.log("Friends Document successfully written!");
-				// })
-				// .catch(function(error) {
-				//     console.error("Error writing Friends document: ", error);
-				// });
-				console.log(user);
-				var ThisUser = database.collection('Users').doc(String(GoogleID));
-				ThisUser.onSnapshot(doc =>{
-				//document.getElementById("EventForm").style.display = "none";	
+			var ThisUser = database.collection('Users').doc(String(UserID));
+			ThisUser.onSnapshot(doc =>{
 				const data = doc.data();
 				document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
-
-				
 			})
-			})
+		})
 			//.catch(console.log)
 }
 
-function addUserDocument() {
+function addUserDocument(Create) {
 	// Add a new document in collection "Users"
-	var ID = document.getElementById('UserID').value
-	var Name = document.getElementById('UserName').value
-	var Email = document.getElementById('UserEmail').value
-	const database = firebase.firestore();
-	database.collection("Users").doc(String(ID)).set({
-	    name: String(Name),
-	    email: String(Email),
-	})
-	.then(function() {
-	    console.log("Document successfully written!");
-	})
-	.catch(function(error) {
-	    console.error("Error writing Users document: ", error);
-});
+	var Name = document.getElementById('UserName').value;
+	var Email = document.getElementById('UserEmail').value;
+	Password = document.getElementById('Password').value;
+	UserID = Name + "-" + Email;
+	if(Create) {
+		firebase.auth().createUserWithEmailAndPassword(Email, Password)
+
+		.then(result =>{
+			
+			const database = firebase.firestore();
+			database.collection("Users").doc(String(UserID)).get().then(function(doc) {
+				if (doc.exists) {
+			        console.log("Document exists");
+			    } else {
+			        // doc.data() will be undefined in this case
+			        console.log("No such document!");
+			        database.collection("Users").doc(String(UserID)).set({
+					    name: String(Name),
+					    email: String(Email),
+					})
+					.then(function() {
+
+					    console.log("User Document successfully written!");
+					})
+					.catch(function(error) {
+					    console.error("Error writing User document: ", error);
+					});
+			    }
+			    }).catch(function(error) {
+				    console.log("Error getting document:", error);
+				});
+
+			HideStuffOnLogin();
+			var ThisUser = database.collection('Users').doc(String(UserID));
+			ThisUser.onSnapshot(doc =>{
+				const data = doc.data();
+				document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
+			})
+		})
+
+		.catch(function(error) {
+		  	// Handle Errors here.
+		  	var errorCode = error.code;
+		  	var errorMessage = error.message;
+		  	console.log("signup Errors =" +errorMessage + " " + errorCode)
+		  	// ...
+		});
+	} else {
+		firebase.auth().signInWithEmailAndPassword(Email, Password)
+		.then(function(doc) {
+			HideStuffOnLogin();
+		})
+		.catch(function(error) {
+	  	// Handle Errors here.
+	  	var errorCode = error.code;
+	  	var errorMessage = error.message;
+	  	console.log("signin Errors =" + errorMessage + " " + errorCode)
+	  	// ...
+		});
+	}
+	
+	
 }
 
 function addEventDocument() {
@@ -130,8 +166,8 @@ function addEventDocument() {
 
 function addFriendDocument() {
 	// Add a new document in collection "Friends"
-	var Name = document.getElementById('FriendName').value
-	var Email = document.getElementById('FriendEmail').value
+	var Name = document.getElementById('FriendName').value;
+	var Email = document.getElementById('FriendEmail').value;
 	Name = String(Name);
 	Email = String(Email);
 	var NameEmail = "Friendslist." + Name + "-" + Email;
@@ -139,7 +175,7 @@ function addFriendDocument() {
 
 	}
 	const database = firebase.firestore();
-	database.collection("Friends").doc(String(GoogleID)).update({	     
+	database.collection("Friends").doc(String(UserID)).update({	     
 	    	[NameEmail] : true,
 	})
 	.then(function() {
@@ -147,7 +183,7 @@ function addFriendDocument() {
 	})
 	.catch(function(error) {
 	    console.error("Error writing Friends document: ", error);
-});
+	});
 }
 
 function hide(myDIV) {
@@ -159,6 +195,19 @@ function hide(myDIV) {
     } else {
         x.style.display = "none";
     }
+}
+
+function HideStuffOnLogin(){
+	hide("EventForm");
+	hide("UserForm");
+	hide("Name");
+	hide("FriendForm");
+	hide("update");
+	hide("Controls");
+	hide("addEventLocation");
+	hide("GoogleButton");
+	EventDropDown();
+	myMap();
 }
 
 function myMap() {
@@ -178,7 +227,7 @@ function myMap() {
     .then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
             // doc.data() is never undefined for query doc snapshots
-            console.log(doc.id, " => ", doc.data());
+            //debug console.log(doc.id, " => ", doc.data());
             var myLatLng = {lat: doc.data().Location._lat, lng: doc.data().Location._long};
             var marker = new google.maps.Marker({
 			    map: map,
@@ -196,62 +245,62 @@ function myMap() {
 }
 
 function codeAddress() {
-var address = document.getElementById("address").value;
-geocoder.geocode( { 'address': address}, function(results, status) {
-if (status == google.maps.GeocoderStatus.OK) {
-map.setCenter(results[0].geometry.location);
+	var address = document.getElementById("address").value;
+	geocoder.geocode( { 'address': address}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);
 
-var marker = new google.maps.Marker({
-    map: map,
-    draggable: true,
-    position: results[0].geometry.location
+			var marker = new google.maps.Marker({
+			    map: map,
+			    draggable: true,
+			    position: results[0].geometry.location
 
-});
-   google.maps.event.addListener(marker, 'dragend', function(evt){
-   document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' 
-   + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
-   
-   	latitude = evt.latLng.lat().toFixed(6);
-   	longitude = evt.latLng.lng().toFixed(6);
-   	console.log(latitude + " " + longitude)
-   	var input = latitude + ", " + longitude;
-	var latlngStr = input.split(',', 2);
-    var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
-    geocoder.geocode({'location': latlng}, function(results, status) {
-          	if (status === 'OK') {
-	          	if (results[0]) {
-	    			document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
-	    		} else {
-	              window.alert('No results found');
-	            }
-			} else {
-            window.alert('Geocoder failed due to: ' + status);
-          }
-    });      
+			});
+		   	google.maps.event.addListener(marker, 'dragend', function(evt){
+			   	document.getElementById('current').innerHTML = '<p>Marker dropped: Current Lat: ' 
+			  	 + evt.latLng.lat().toFixed(3) + ' Current Lng: ' + evt.latLng.lng().toFixed(3) + '</p>';
+			   
+			   	latitude = evt.latLng.lat().toFixed(6);
+			   	longitude = evt.latLng.lng().toFixed(6);
+			   	console.log(latitude + " " + longitude)
+			   	var input = latitude + ", " + longitude;
+				var latlngStr = input.split(',', 2);
+			    var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+			    geocoder.geocode({'location': latlng}, function(results, status) {
+			          	if (status === 'OK') {
+				          	if (results[0]) {
+				    			document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
+				    		} else {
+				              window.alert('No results found');
+				            }
+						} else {
+			            window.alert('Geocoder failed due to: ' + status);
+			          }
+			    });      
 
-   });
+		   	});
 
-   google.maps.event.addListener(marker, 'dragstart', function(evt){
-   document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
-   });
+		   	google.maps.event.addListener(marker, 'dragstart', function(evt){
+		   		document.getElementById('current').innerHTML = '<p>Currently dragging marker...</p>';
+		   	});
 
-   // google.maps.event.addListener(marker, 'dragend', function(evt){
-   document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
-   // });
+		   	// google.maps.event.addListener(marker, 'dragend', function(evt){
+		   	// document.getElementById('info').innerHTML = '<p>Address:  ' + results[0].formatted_address + '</p>';
+		   	// });
 
-   google.maps.event.addListener(marker, 'dragstart', function(evt){
-   document.getElementById('info').innerHTML = '<p>Currently dragging marker...</p>';
-   });
+		   	google.maps.event.addListener(marker, 'dragstart', function(evt){
+		   	document.getElementById('info').innerHTML = '<p>Currently dragging marker...</p>';
+		   	});
 
 
 
- map.setCenter(marker.position);
- marker.setMap(map);
+		 	map.setCenter(marker.position);
+		 	marker.setMap(map);
 
-  } else {
-    alert("Geocode was not successful for the following reason: " + status);
-    }
-     });
+	  	} else {
+	    	alert("Geocode was not successful for the following reason: " + status);
+	    }
+ 	});
 }
 
 function addEventMapDocument() {
@@ -269,5 +318,63 @@ function addEventMapDocument() {
 	})
 	.catch(function(error) {
 	    console.error("Error writing Events document: ", error);
-});
+	});
+}
+
+function EventDropDown() {
+	var select = document.getElementById("SelectEvents"); 
+	
+	console.log(EventsArray); 
+	var Counter = 0;
+	const database = firebase.firestore();
+	console.log("EventDDStarted");
+	database.collection("Events")//.where("Location", "==", true)
+    .get()
+    .then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            //console.log(doc.id, " => ", doc.data().name);
+            EventsArray[Counter] = doc.data().name;
+            //console.log(EventsArray[Counter]);
+            //console.log(EventsArray.length);            
+            Counter ++;
+		});
+    })
+    .then(function(){
+    	for (var i = EventsArray.length - 1; i >= 0; i--) {
+    	//console.log(EventsArray[i]);
+	    }
+	    console.log("EventDDMidpoint");
+
+		for(var i = 0; i < EventsArray.length; i++) {
+		    var Evt = EventsArray[i];
+		    var listItem = document.createElement("option");
+		    listItem.textContent = Evt;
+		    listItem.value = Evt;
+		    select.appendChild(listItem);
+		}
+		console.log("EventDDEndpoint");
+    })	
+    
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
+
+    
+}
+
+function addEventToUser(){
+
+	var NameOfEvent = document.getElementById('SelectEvents').value;
+	var RSVPEvent = "RSVPs." + NameOfEvent;
+	const database = firebase.firestore();
+	database.collection("Users").doc(String(UserID)).update({	     
+	    	[RSVPEvent] : true,
+	})
+	.then(function() {
+	    console.log("Document successfully written!");
+	})
+	.catch(function(error) {
+	    console.error("Error writing Friends document: ", error);
+	});
 }

@@ -41,7 +41,7 @@
 
     <h1 id="Google"></h1>
 
-    <button onclick="googleLogin()">
+    <button id="GoogleButton" onclick="googleLogin()">
       Login with Google  
 
     </button>
@@ -51,11 +51,12 @@
     <input id= "update" onchange="updatePost(event)" placeholder="Change data here..." >
 
     <div class = "UserForm" id = "UserForm">
-      <h3>New User document</h3>
-      <input type="text" placeholder="Enter User here..." id = "UserID">
+      <h3>Login</h3>
       <input type="text" placeholder="Enter Name here..." id = "UserName">
+      <input type="password" placeholder="Enter Password here..." id = "Password">
       <input type="text" placeholder="Enter Email here..." id = "UserEmail">
-      <button id="proceed" onclick= "addUserDocument()"> Submit </button>
+      <button id="proceed" onclick= "addUserDocument(true)"> Create </button>
+      <button id="proceed" onclick= "addUserDocument(false)"> Sign In </button>
     </div>
 
     <div class = "EventForm" id = "EventForm">
@@ -84,6 +85,13 @@
     <div id="addEventLocation" style="display: none">
     <input type="text" placeholder="Enter Event Name here..." id = "EventNameMap">
     <button id="proceed" onclick= "addEventMapDocument()"> Submit </button>
+    </div>
+
+    <div id="EventListForm">
+      <select id="SelectEvents">
+        <option>Choose an Event</option>
+      </select>
+        <button id="proceed" onclick= "addEventToUser()"> RSVP to </button>
     </div>
 
     <div id="map" style="width:400px;height:400px">
