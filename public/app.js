@@ -14,14 +14,25 @@ document.addEventListener("DOMContentLoaded" , event => {
   	database.settings(settings);
 	
 
-	const myUser = database.collection('Users').doc('ONE');
+	firebase.auth().onAuthStateChanged(function(user) {
+	  if (user) {
+	    // User is signed in.
+	    var UserID = user.displayName + "-" + user.email;
+	  } else {
+	    // No user is signed in.
+	    var UserID = "blank";
+	  }
+	  console.log(UserID);
+	});
 
-	myUser.onSnapshot(doc =>{
+	// const myUser = database.collection('Users').doc('ONE');
 
-				const data = doc.data();
-				document.querySelector( "#Name").innerHTML = data.Name
+	// myUser.onSnapshot(doc =>{
+
+	// 			const data = doc.data();
+	// 			document.querySelector( "#Name").innerHTML = data.Name
 				
-			})
+	// 		})
 
 });
 
@@ -228,6 +239,13 @@ function myMap() {
         querySnapshot.forEach(function(doc) {
             // doc.data() is never undefined for query doc snapshots
             //debug console.log(doc.id, " => ", doc.data());
+            var ContentString = "<p>Event Name: " + doc.data().name + "</p><p>Event Description: "+ doc.data().Description 
+            + "</p><p>Event Location: "+ doc.data().Location._lat + ", " + doc.data().Location._long + "</p><p>Event Time: "+ doc.data().Time + "</p>" 
+            
+            var infowindow = new google.maps.InfoWindow({
+          		content: ContentString
+        	});
+            
             var myLatLng = {lat: doc.data().Location._lat, lng: doc.data().Location._long};
             var marker = new google.maps.Marker({
 			    map: map,
@@ -237,6 +255,11 @@ function myMap() {
 			    title: doc.data().name
 
 			});
+
+			marker.addListener('click', function() {
+          		infowindow.open(map, marker);
+        	});
+
         });
     })
     .catch(function(error) {
