@@ -64,6 +64,46 @@ function googleLogin() {
 			database.collection("Users").doc(String(UserID)).get().then(function(doc) {
 				if (doc.exists) {
 			        console.log("Document data:", doc.data());
+			        console.log("here 1");
+			      	
+			      	// database.collection("Users").doc(String(UserID)).get(RSVPs).then(function(doc) {
+			      	// 	 console.log("Document data:", doc.data());
+			      	// })
+			      	//   var ref = String(UserID) + ".RSVPs"
+			     	// database.collection("Users").doc(ref).get()
+			     	// .then(function(doc) {
+			     	// 	console.log(doc.data)
+			     	// })
+
+			     	// database.collection('Users').doc(String(UserID))
+				    // .where('RSVPs', '==', true)
+				    // .get()
+				    // .then((doc) => {
+				    //     console.log(doc.data());
+				    // });
+
+			       	//  var RSVPs = doc.data().RSVPs;
+			       	//  console.log(RSVPs.size);
+	        		//  	RSVPs.forEach(function(snapshot){
+			        //  		var obj = snapshot.val();
+	       			// 		if(obj == true) {
+					    		// console.log(obj);
+			       	//     	}
+			        //  	})
+	         		
+
+			        // document.querySelector( "#Google").innerHTML = ("RSVPs " + RSVPs);
+					
+					// for (var [key, value] of doc.data()) {
+					//   	console.log(key + ' = ' + value);
+					// }
+					// for (var [key, value] of RSVPs.entries()) {
+					//   	console.log(key + ' = ' + value);
+					// }
+					// RSVPs.forEach(function(value, key) {
+					//   	console.log(key + ' = ' + value);
+					// });
+					console.log("here 2");
 			    } else {
 			        // doc.data() will be undefined in this case
 			        console.log("No such document!");
@@ -85,7 +125,9 @@ function googleLogin() {
 			var ThisUser = database.collection('Users').doc(String(UserID));
 			ThisUser.onSnapshot(doc =>{
 				const data = doc.data();
-				document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
+				//document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
+				
+				
 			})
 		})
 			//.catch(console.log)
@@ -130,6 +172,12 @@ function addUserDocument(Create) {
 			ThisUser.onSnapshot(doc =>{
 				const data = doc.data();
 				document.querySelector( "#Google").innerHTML = ("Hello " + data.name);
+				var RSVPs = data.RSVPs;
+				for (var i = RSVPs.length - 1; i >= 0; i--) {
+					console.log(RSVPs[i]);
+				}
+				
+
 			})
 		})
 
@@ -347,10 +395,10 @@ function addEventMapDocument() {
 function EventDropDown() {
 	var select = document.getElementById("SelectEvents"); 
 	
-	console.log(EventsArray); 
+	//console.log(EventsArray); 
 	var Counter = 0;
 	const database = firebase.firestore();
-	console.log("EventDDStarted");
+	//console.log("EventDDStarted");
 	database.collection("Events")//.where("Location", "==", true)
     .get()
     .then(function(querySnapshot) {
@@ -367,7 +415,7 @@ function EventDropDown() {
     	for (var i = EventsArray.length - 1; i >= 0; i--) {
     	//console.log(EventsArray[i]);
 	    }
-	    console.log("EventDDMidpoint");
+	    //console.log("EventDDMidpoint");
 
 		for(var i = 0; i < EventsArray.length; i++) {
 		    var Evt = EventsArray[i];
@@ -376,7 +424,7 @@ function EventDropDown() {
 		    listItem.value = Evt;
 		    select.appendChild(listItem);
 		}
-		console.log("EventDDEndpoint");
+		//console.log("EventDDEndpoint");
     })	
     
     .catch(function(error) {
@@ -400,4 +448,9 @@ function addEventToUser(){
 	.catch(function(error) {
 	    console.error("Error writing Friends document: ", error);
 	});
+}
+
+function RSVPList () {
+
+	const database = firebase.firestore();	
 }
